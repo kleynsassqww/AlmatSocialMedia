@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AlmatSocial</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-inner">
+        <a class="navbar-brand" href="#" onclick="showSection('home')">AlmatSocial</a>
+        <ul class="nav-links">
+            <li><a href="#" onclick="showSection('home')"    data-section="home"    class="active">Главная</a></li>
+            <li><a href="#" onclick="showSection('posts')"   data-section="posts">Посты</a></li>
+            <li><a href="#" onclick="showSection('users')"   data-section="users">Пользователи</a></li>
+            <li><a href="#" onclick="showSection('socials')" data-section="socials">Соцсети</a></li>
+        </ul>
+        <a href="#" onclick="showSection('users')" class="btn-nav">+ Регистрация</a>
+    </div>
+</nav>
+
+<!-- ========== HOME ========== -->
+<div id="section-home">
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">Сделано в Казахстане</div>
+            <h1 class="hero-title">Привет! Я <span class="highlight">Алмат</span></h1>
+            <p class="hero-subtitle">
+                Добро пожаловать в мою социальную сеть. Здесь можно делиться постами,
+                находить друзей и связывать аккаунты из разных платформ.
+            </p>
+            <div class="hero-actions">
+                <a href="#" onclick="showSection('posts')" class="btn btn-primary btn-lg">Смотреть посты</a>
+                <a href="#" onclick="showSection('users')" class="btn btn-outline btn-lg">Пользователи</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="avatar-big">
+                <img th:src="@{/images/avatar.jpg}" alt="Алмат"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='A'"/>
+            </div>
+            <div class="floating-card c1">Новый пост!</div>
+            <div class="floating-card c2">42 лайка</div>
+            <div class="floating-card c3">3 друга</div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" th:text="${userCount}">0</div>
+                <div class="stat-label">Пользователей</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" th:text="${postCount}">0</div>
+                <div class="stat-label">Постов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" th:text="${socialCount}">0</div>
+                <div class="stat-label">Соцсетей</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Лайков</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Последние посты</h2>
+                <a href="#" onclick="showSection('posts')" class="btn btn-outline">Все посты</a>
+            </div>
+            <div class="posts-grid">
+                <div class="post-card" th:each="post : ${latestPosts}">
+                    <div class="post-card-header">
+                        <div class="post-avatar" th:text="${#strings.substring(post.title, 0, 1)}">П</div>
+                        <div class="post-meta">
+                            <span class="post-author"
+                                  th:each="u : ${users}" th:if="${u.id == post.userId}"
+                                  th:text="${u.username}">user</span>
+                            <span class="post-date"
+                                  th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy')}">дата</span>
+                        </div>
+                    </div>
+                    <h3 class="post-title" th:text="${post.title}">Заголовок</h3>
+                    <p class="post-content" th:text="${#strings.abbreviate(post.content, 120)}">Текст...</p>
+                    <div class="post-footer">
+                        <span class="likes-count" th:text="${post.likes + ' лайков'}">0 лайков</span>
+                        <button class="btn btn-outline btn-sm"
+                                th:onclick="'likePost(' + ${post.id} + ')'">Лайк</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title text-center">Возможности платформы</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">&#9998;</div>
+                    <h3>Публикуй посты</h3>
+                    <p>Делись мыслями, фото и историями с сообществом</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128101;</div>
+                    <h3>Находи людей</h3>
+                    <p>Знакомься с интересными людьми и расширяй круг общения</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128279;</div>
+                    <h3>Связывай соцсети</h3>
+                    <p>Подключай Instagram, TikTok, Twitter в одном месте</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#10084;</div>
+                    <h3>Ставь лайки</h3>
+                    <p>Отмечай понравившиеся посты и поддерживай авторов</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- ========== POSTS ========== -->
+<div id="section-posts" style="display:none">
+    <main class="container page-main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Посты</h1>
+                <p class="page-subtitle" th:text="${postCount} + ' публикаций'">0 публикаций</p>
+            </div>
+            <button class="btn btn-primary" onclick="toggleForm('post-form')">+ Новый пост</button>
+        </div>
+
+        <div id="post-form" class="form-card" style="display:none; margin-bottom:32px">
+            <h3>Новый пост</h3>
+            <div class="form">
+                <div class="form-group">
+                    <label class="form-label">Автор</label>
+                    <select class="form-control" id="post-userId">
+                        <option value="">Выберите пользователя</option>
+                        <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.username}">User</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Заголовок</label>
+                    <input class="form-control" type="text" id="post-title" placeholder="Введите заголовок..."/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Содержание</label>
+                    <textarea class="form-control" id="post-content" placeholder="О чём хочешь написать?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ссылка на изображение (необязательно)</label>
+                    <input class="form-control" type="url" id="post-imageUrl" placeholder="https://example.com/img.jpg"/>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-ghost" onclick="toggleForm('post-form')">Отмена</button>
+                    <button class="btn btn-primary" onclick="createPost()">Опубликовать</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="posts-grid">
+            <div class="post-card" th:each="post : ${posts}" th:id="'post-card-' + ${post.id}">
+                <div class="post-card-header">
+                    <div class="post-avatar" th:text="${#strings.substring(post.title, 0, 1)}">П</div>
+                    <div class="post-meta">
+                        <span class="post-author"
+                              th:each="u : ${users}" th:if="${u.id == post.userId}"
+                              th:text="${u.username}">user</span>
+                        <span class="post-date"
+                              th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy')}">дата</span>
+                    </div>
+                </div>
+                <h3 class="post-title" th:text="${post.title}">Заголовок</h3>
+                <p class="post-content" th:text="${post.content}">Текст</p>
+                <div class="post-footer">
+                    <span class="likes-count"
+                          th:id="'likes-' + ${post.id}"
+                          th:text="${post.likes + ' лайков'}">0 лайков</span>
+                    <div class="post-actions">
+                        <button class="btn btn-outline btn-sm"
+                                th:onclick="'likePost(' + ${post.id} + ')'">Лайк</button>
+                        <button class="btn btn-danger btn-sm"
+                                th:onclick="'deletePost(' + ${post.id} + ')'">Удалить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ========== USERS ========== -->
+<div id="section-users" style="display:none">
+    <main class="container page-main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Пользователи</h1>
+                <p class="page-subtitle" th:text="${userCount} + ' участников'">0 участников</p>
+            </div>
+            <button class="btn btn-primary" onclick="toggleForm('user-form')">+ Новый пользователь</button>
+        </div>
+
+        <div id="user-form" class="form-card" style="display:none; margin-bottom:32px">
+            <h3>Новый пользователь</h3>
+            <div class="form">
+                <div class="form-group">
+                    <label class="form-label">Имя пользователя</label>
+                    <input class="form-control" type="text" id="user-username" placeholder="almat_dev"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" type="email" id="user-email" placeholder="almat@example.com"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">О себе</label>
+                    <textarea class="form-control" id="user-bio" placeholder="Расскажи о себе..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-ghost" onclick="toggleForm('user-form')">Отмена</button>
+                    <button class="btn btn-primary" onclick="createUser()">Сохранить</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-grid">
+            <div class="user-card" th:each="u : ${users}" th:id="'user-card-' + ${u.id}">
+                <div class="user-avatar"
+                     th:text="${#strings.substring(u.username, 0, 1).toUpperCase()}">A</div>
+                <div class="user-name" th:text="${u.username}">username</div>
+                <div class="user-email" th:text="${u.email}">email</div>
+                <p class="user-bio" th:text="${u.bio}">bio</p>
+                <div class="user-joined"
+                     th:text="'Зарегистрирован: ' + ${#temporals.format(u.createdAt, 'dd.MM.yyyy')}">дата</div>
+                <div class="user-card-actions">
+                    <button class="btn btn-danger btn-sm"
+                            th:onclick="'deleteUser(' + ${u.id} + ')'">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ========== SOCIALS ========== -->
+<div id="section-socials" style="display:none">
+    <main class="container page-main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Соцсети</h1>
+                <p class="page-subtitle" th:text="${socialCount} + ' привязанных аккаунтов'">0 аккаунтов</p>
+            </div>
+            <button class="btn btn-primary" onclick="toggleForm('social-form')">+ Привязать</button>
+        </div>
+
+        <div id="social-form" class="form-card" style="display:none; margin-bottom:32px">
+            <h3>Привязать соцсеть</h3>
+            <div class="form">
+                <div class="form-group">
+                    <label class="form-label">Пользователь</label>
+                    <select class="form-control" id="social-userId">
+                        <option value="">Выберите пользователя</option>
+                        <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.username}">User</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Платформа</label>
+                    <select class="form-control" id="social-platform">
+                        <option value="">Выберите платформу</option>
+                        <option th:each="p : ${platforms}" th:value="${p}" th:text="${p}">Platform</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ссылка на профиль</label>
+                    <input class="form-control" type="url" id="social-profileUrl" placeholder="https://instagram.com/username"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Подписчики</label>
+                    <input class="form-control" type="number" id="social-followers" placeholder="1000" min="0"/>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-ghost" onclick="toggleForm('social-form')">Отмена</button>
+                    <button class="btn btn-primary" onclick="createSocial()">Привязать</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="social-grid">
+            <div class="social-card" th:each="s : ${socials}" th:id="'social-card-' + ${s.id}">
+                <div class="social-badge"
+                     th:classappend="${s.platform == 'Instagram' ? ' instagram' : (s.platform == 'TikTok' ? ' tiktok' : (s.platform == 'YouTube' ? ' youtube' : ''))}"
+                     th:text="${s.platform}">Platform</div>
+                <div class="social-info">
+                    <div class="social-user">
+                        <span th:each="u : ${users}" th:if="${u.id == s.userId}" th:text="${u.username}">user</span>
+                    </div>
+                    <div class="social-followers" th:text="${s.followers + ' подписчиков'}">0</div>
+                    <a class="social-link" th:href="${s.profileUrl}" target="_blank"
+                       th:text="${s.profileUrl}">ссылка</a>
+                </div>
+                <div class="social-actions">
+                    <button class="btn btn-danger btn-sm"
+                            th:onclick="'deleteSocial(' + ${s.id} + ')'">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="footer">
+    <p>© 2026 <strong>AlmatSocial</strong> — Социальная сеть от Алмата</p>
+</footer>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

@@ -1,0 +1,35 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------< com.example:SocialMediaAlmat >--------------------
+[INFO] Building SocialMediaAlmat 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ SocialMediaAlmat ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ SocialMediaAlmat ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ SocialMediaAlmat ---
+[INFO] skip non existing resourceDirectory C:\SocialMediaAlmat\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ SocialMediaAlmat ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.4:test (default-test) @ SocialMediaAlmat ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ SocialMediaAlmat ---
+[INFO] Building jar: C:\SocialMediaAlmat\target\SocialMediaAlmat-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.3:repackage (repackage) @ SocialMediaAlmat ---
+[INFO] Replacing main artifact C:\SocialMediaAlmat\target\SocialMediaAlmat-0.0.1-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to C:\SocialMediaAlmat\target\SocialMediaAlmat-0.0.1-SNAPSHOT.jar.original
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.825 s
+[INFO] Finished at: 2026-02-27T20:49:07+03:00
+[INFO] ------------------------------------------------------------------------
