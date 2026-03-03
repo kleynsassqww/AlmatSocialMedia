@@ -1,4 +1,4 @@
-package com.example.SocialMediaAlmat.controller;
+package kz.enu.SocialMediaAlmat.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

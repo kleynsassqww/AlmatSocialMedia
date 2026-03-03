@@ -1,6 +1,6 @@
-package com.example.SocialMediaAlmat.service;
+package kz.enu.SocialMediaAlmat.service;
 
-import com.example.SocialMediaAlmat.model.SocialMedia;
+import kz.enu.SocialMediaAlmat.model.SocialMedia;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

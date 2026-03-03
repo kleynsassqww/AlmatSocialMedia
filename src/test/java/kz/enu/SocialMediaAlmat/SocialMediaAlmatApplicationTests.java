@@ -1,4 +1,4 @@
-package com.example.SocialMediaAlmat;
+package kz.enu.SocialMediaAlmat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

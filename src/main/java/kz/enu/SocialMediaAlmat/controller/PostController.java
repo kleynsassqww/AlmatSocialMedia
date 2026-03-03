@@ -1,7 +1,7 @@
-package com.example.SocialMediaAlmat.controller;
+package kz.enu.SocialMediaAlmat.controller;
 
-import com.example.SocialMediaAlmat.model.Post;
-import com.example.SocialMediaAlmat.service.PostService;
+import kz.enu.SocialMediaAlmat.model.Post;
+import kz.enu.SocialMediaAlmat.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

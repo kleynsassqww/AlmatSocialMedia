@@ -1,8 +1,8 @@
-package com.example.SocialMediaAlmat.controller;
+package kz.enu.SocialMediaAlmat.controller;
 
-import com.example.SocialMediaAlmat.service.PostService;
-import com.example.SocialMediaAlmat.service.SocialMediaService;
-import com.example.SocialMediaAlmat.service.UserService;
+import kz.enu.SocialMediaAlmat.service.PostService;
+import kz.enu.SocialMediaAlmat.service.SocialMediaService;
+import kz.enu.SocialMediaAlmat.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.example.SocialMediaAlmat.model;
+package kz.enu.SocialMediaAlmat.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
