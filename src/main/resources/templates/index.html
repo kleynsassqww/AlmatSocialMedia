@@ -17,7 +17,6 @@
             <a href="#posts">Посты</a>
             <a href="#users">Пользователи</a>
             <a href="#socials">Соцсети</a>
-            <a href="#api">API</a>
         </div>
         <button class="nav-btn" onclick="openModal('modal-user')">+ Регистрация</button>
     </div>
@@ -30,11 +29,12 @@
         <p>Добро пожаловать в мою социальную платформу. Публикуй посты, знакомься с людьми и связывай свои аккаунты из других соцсетей.</p>
         <div class="hero-btns">
             <a href="#posts" class="btn-primary">Смотреть посты</a>
-            <a href="#api" class="btn-secondary">API документация</a>
         </div>
     </div>
     <div class="hero-card">
-        <div class="profile-avatar">А</div>
+        <div class="profile-avatar">
+            <img th:src="@{/images/ava.jpg}" alt="Алмат"/>
+        </div>
         <div class="profile-name">Алмат</div>
         <div class="profile-bio">Создатель AlmatSocial</div>
         <div class="profile-stats">
@@ -153,46 +153,6 @@
     </div>
 </section>
 
-<hr class="section-divider"/>
-
-<section class="section" id="api">
-    <div class="container">
-        <h2 class="section-title">API Эндпоинты</h2>
-        <p class="api-desc">Базовый URL: <code>http://localhost:8080</code> — протестируйте через Postman</p>
-        <div class="api-table-wrap">
-            <table class="api-table">
-                <thead>
-                    <tr>
-                        <th>Метод</th>
-                        <th>URL</th>
-                        <th>Описание</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td><span class="method get">GET</span></td><td>/api/users</td><td>Получить всех пользователей</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td>/api/users/{id}</td><td>Получить пользователя по ID</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td>/api/users</td><td>Создать пользователя</td></tr>
-                    <tr><td><span class="method put">PUT</span></td><td>/api/users/{id}</td><td>Обновить пользователя</td></tr>
-                    <tr><td><span class="method del">DELETE</span></td><td>/api/users/{id}</td><td>Удалить пользователя</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td>/api/posts</td><td>Получить все посты</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td>/api/posts/{id}</td><td>Получить пост по ID</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td>/api/posts/user/{userId}</td><td>Посты пользователя</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td>/api/posts</td><td>Создать пост</td></tr>
-                    <tr><td><span class="method put">PUT</span></td><td>/api/posts/{id}</td><td>Обновить пост</td></tr>
-                    <tr><td><span class="method del">DELETE</span></td><td>/api/posts/{id}</td><td>Удалить пост</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td>/api/posts/{id}/like</td><td>Поставить лайк посту</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td>/api/social-media</td><td>Все соцсети</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td>/api/social-media/{id}</td><td>Соцсеть по ID</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td>/api/social-media/user/{userId}</td><td>Соцсети пользователя</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td>/api/social-media</td><td>Добавить соцсеть</td></tr>
-                    <tr><td><span class="method del">DELETE</span></td><td>/api/social-media/{id}</td><td>Удалить соцсеть</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
-<hr class="section-divider"/>
 
 <section class="section" id="about">
     <div class="container">
