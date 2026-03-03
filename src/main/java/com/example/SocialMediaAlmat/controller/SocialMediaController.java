@@ -12,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/social-media")
-@CrossOrigin(origins = "*")
 public class SocialMediaController {
 
     private final SocialMediaService socialMediaService;
@@ -27,43 +26,29 @@ public class SocialMediaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
+    public ResponseEntity<SocialMedia> getById(@PathVariable Long id) {
         return socialMediaService.getById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Соцсеть id=" + id + " не найдена")));
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<SocialMedia>> getByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<SocialMedia>> getByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(socialMediaService.getByUserId(userId));
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody SocialMedia sm) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(socialMediaService.create(sm));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody SocialMedia sm) {
-        return socialMediaService.update(id, sm)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Соцсеть id=" + id + " не найдена")));
+    public ResponseEntity<SocialMedia> create(@Valid @RequestBody SocialMedia sm) {
+        SocialMedia created = socialMediaService.create(sm);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
         if (socialMediaService.delete(id)) {
-            return ResponseEntity.ok(Map.of("message", "Соцсеть id=" + id + " удалена"));
+            return ResponseEntity.ok(Map.of("message", "Соцсеть удалена"));
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", "Соцсеть id=" + id + " не найдена"));
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Map<String, Integer>> count() {
-        return ResponseEntity.ok(Map.of("total", socialMediaService.getAll().size()));
+        return ResponseEntity.notFound().build();
     }
 }
 

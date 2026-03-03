@@ -12,28 +12,17 @@ import java.util.stream.Collectors;
 @Service
 public class PostService {
 
-    private final List<Post> posts   = new ArrayList<>();
+    private final List<Post> posts = new ArrayList<>();
     private final AtomicLong counter = new AtomicLong(1);
 
     public PostService() {
-        posts.add(new Post(counter.getAndIncrement(), 1L,
-                "Мой первый пост",
-                "Привет всем! Я Алмат и я запустил свою собственную соцсеть. Добро пожаловать!", null));
-        posts.add(new Post(counter.getAndIncrement(), 1L,
-                "Spring Boot — это мощь",
-                "Сегодня изучаю Spring Boot и создаю REST API. Это реально очень интересно и полезно!", null));
-        posts.add(new Post(counter.getAndIncrement(), 2L,
-                "Путешествие в горы",
-                "Только что вернулась с Алатауских гор. Природа Казахстана невероятна!", null));
+        posts.add(new Post(counter.getAndIncrement(), "Добро пожаловать в AlmatSocial!", "Это первый пост на нашей платформе. Рад всех приветствовать!", 1L));
+        posts.add(new Post(counter.getAndIncrement(), "Весна в Алматы", "Алматы весной — это что-то особенное. Цветут яблони, горы покрыты снегом...", 2L));
+        posts.add(new Post(counter.getAndIncrement(), "Советы по программированию", "Spring Boot — отличный фреймворк для создания REST API. Начните с малого и двигайтесь вперёд!", 1L));
     }
 
-    public List<Post> getAll() { return posts; }
-
-    public List<Post> getLatest(int limit) {
-        return posts.stream()
-                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
-                .limit(limit)
-                .collect(Collectors.toList());
+    public List<Post> getAll() {
+        return posts;
     }
 
     public Optional<Post> getById(Long id) {
@@ -46,28 +35,37 @@ public class PostService {
 
     public Post create(Post post) {
         post.setId(counter.getAndIncrement());
+        post.setLikes(0);
         posts.add(post);
         return post;
     }
 
     public Optional<Post> update(Long id, Post updated) {
-        return getById(id).map(p -> {
-            p.setTitle(updated.getTitle());
-            p.setContent(updated.getContent());
-            p.setImageUrl(updated.getImageUrl());
-            return p;
-        });
-    }
-
-    public Optional<Post> like(Long id) {
-        return getById(id).map(p -> {
-            p.setLikes(p.getLikes() + 1);
-            return p;
+        return getById(id).map(post -> {
+            post.setTitle(updated.getTitle());
+            post.setContent(updated.getContent());
+            return post;
         });
     }
 
     public boolean delete(Long id) {
         return posts.removeIf(p -> p.getId().equals(id));
+    }
+
+    public Optional<Post> like(Long id) {
+        return getById(id).map(post -> {
+            post.setLikes(post.getLikes() + 1);
+            return post;
+        });
+    }
+
+    public List<Post> getLatest(int n) {
+        int size = posts.size();
+        return posts.subList(Math.max(0, size - n), size);
+    }
+
+    public int count() {
+        return posts.size();
     }
 }
 

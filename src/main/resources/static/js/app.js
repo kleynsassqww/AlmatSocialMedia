@@ -1,129 +1,192 @@
-function showSection(name) {
-    ['home', 'posts', 'users', 'socials'].forEach(s => {
-        document.getElementById('section-' + s).style.display = s === name ? '' : 'none';
-    });
-    document.querySelectorAll('.nav-links a').forEach(a => {
-        a.classList.toggle('active', a.dataset.section === name);
-    });
-    window.scrollTo(0, 0);
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
 }
 
-function toggleForm(id) {
-    const el = document.getElementById(id);
-    el.style.display = el.style.display === 'none' ? '' : 'none';
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
 }
 
-function notify(msg, isError) {
-    let n = document.getElementById('notify-box');
-    if (!n) {
-        n = document.createElement('div');
-        n.id = 'notify-box';
-        n.style.cssText = 'position:fixed;top:76px;right:24px;z-index:9999;padding:12px 22px;border-radius:10px;font-weight:600;font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.15);transition:opacity .3s;min-width:220px';
-        document.body.appendChild(n);
+function closeModalOutside(e, id) {
+    if (e.target.id === id) closeModal(id);
+}
+
+function showToast(msg, type) {
+    var container = document.getElementById('toast-container');
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + (type || '');
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 3500);
+}
+
+function createPost() {
+    var title = document.getElementById('post-title').value.trim();
+    var content = document.getElementById('post-content').value.trim();
+    var userId = parseInt(document.getElementById('post-userId').value);
+
+    if (!title || !content) {
+        showToast('Заполните заголовок и содержание', 'error');
+        return;
     }
-    n.textContent = msg;
-    n.style.background = isError ? '#dc2626' : '#7c3aed';
-    n.style.color = '#fff';
-    n.style.opacity = '1';
-    clearTimeout(n._timer);
-    n._timer = setTimeout(() => { n.style.opacity = '0'; }, 2800);
+
+    fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, content: content, userId: userId })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(post) {
+        closeModal('modal-post');
+        document.getElementById('post-title').value = '';
+        document.getElementById('post-content').value = '';
+        document.getElementById('post-userId').value = '1';
+        var grid = document.getElementById('posts-grid');
+        var card = document.createElement('div');
+        card.className = 'post-card';
+        card.setAttribute('data-id', post.id);
+        card.innerHTML =
+            '<div class="post-header">' +
+                '<div class="post-avatar">' + post.title.charAt(0) + '</div>' +
+                '<div>' +
+                    '<div class="post-author">Пользователь #' + post.userId + '</div>' +
+                    '<div class="post-date">Только что</div>' +
+                '</div>' +
+            '</div>' +
+            '<h3 class="post-title">' + escHtml(post.title) + '</h3>' +
+            '<p class="post-content">' + escHtml(post.content.substring(0, 130)) + '</p>' +
+            '<div class="post-footer">' +
+                '<button class="post-likes" onclick="likePost(' + post.id + ', this)">Лайков: <b>' + post.likes + '</b></button>' +
+                '<button class="btn-sm" onclick="deletePost(' + post.id + ')">Удалить</button>' +
+            '</div>';
+        grid.prepend(card);
+        showToast('Пост опубликован!', 'success');
+    })
+    .catch(function() { showToast('Ошибка при создании поста', 'error'); });
 }
 
-async function likePost(id) {
-    const res = await fetch('/api/posts/' + id + '/like', { method: 'POST' });
-    if (res.ok) {
-        const data = await res.json();
-        const el = document.getElementById('likes-' + id);
-        if (el) el.textContent = data.likes + ' лайков';
-        notify('Лайк поставлен!');
-    } else {
-        notify('Ошибка', true);
-    }
+function likePost(id, btn) {
+    fetch('/api/posts/' + id + '/like', { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(post) {
+        var b = btn.querySelector('b');
+        if (b) b.textContent = post.likes;
+        showToast('Лайк поставлен!', 'success');
+    })
+    .catch(function() { showToast('Ошибка', 'error'); });
 }
 
-async function deletePost(id) {
+function deletePost(id) {
     if (!confirm('Удалить пост?')) return;
-    const res = await fetch('/api/posts/' + id, { method: 'DELETE' });
-    if (res.ok) {
-        document.getElementById('post-card-' + id)?.remove();
-        notify('Пост удалён');
-    } else {
-        notify('Ошибка', true);
-    }
+    fetch('/api/posts/' + id, { method: 'DELETE' })
+    .then(function(r) {
+        if (r.ok) {
+            var card = document.querySelector('[data-id="' + id + '"]');
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                card.style.transition = '0.3s ease';
+                setTimeout(function() { card.remove(); }, 300);
+            } else {
+                location.reload();
+            }
+            showToast('Пост удалён', 'success');
+        }
+    })
+    .catch(function() { showToast('Ошибка при удалении', 'error'); });
 }
 
-async function createPost() {
-    const userId   = document.getElementById('post-userId').value;
-    const title    = document.getElementById('post-title').value.trim();
-    const content  = document.getElementById('post-content').value.trim();
-    const imageUrl = document.getElementById('post-imageUrl').value.trim();
-    if (!userId || !title || !content) { notify('Заполните все обязательные поля', true); return; }
-    const res = await fetch('/api/posts', {
+function createUser() {
+    var name = document.getElementById('user-name').value.trim();
+    var email = document.getElementById('user-email').value.trim();
+    var bio = document.getElementById('user-bio').value.trim();
+
+    if (!name || !email) {
+        showToast('Заполните имя и email', 'error');
+        return;
+    }
+
+    fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: Number(userId), title, content, imageUrl: imageUrl || null })
+        body: JSON.stringify({ name: name, email: email, bio: bio })
+    })
+    .then(function(r) {
+        if (!r.ok) return r.json().then(function(e) { throw e; });
+        return r.json();
+    })
+    .then(function(user) {
+        closeModal('modal-user');
+        document.getElementById('user-name').value = '';
+        document.getElementById('user-email').value = '';
+        document.getElementById('user-bio').value = '';
+        var grid = document.getElementById('users-grid');
+        var card = document.createElement('div');
+        card.className = 'user-card';
+        card.innerHTML =
+            '<div class="user-avatar">' + user.name.charAt(0) + '</div>' +
+            '<div class="user-info">' +
+                '<div class="user-name">' + escHtml(user.name) + '</div>' +
+                '<div class="user-email">' + escHtml(user.email) + '</div>' +
+                '<div class="user-bio">' + escHtml(user.bio || '') + '</div>' +
+            '</div>';
+        grid.appendChild(card);
+        showToast('Пользователь создан!', 'success');
+    })
+    .catch(function(e) {
+        var msg = typeof e === 'object' ? JSON.stringify(e) : 'Ошибка при создании пользователя';
+        showToast(msg, 'error');
     });
-    if (res.ok) { notify('Пост опубликован!'); location.reload(); }
-    else {
-        const e = await res.json();
-        notify((e.messages ? e.messages[0] : e.error) || 'Ошибка', true);
-    }
 }
 
-async function deleteUser(id) {
-    if (!confirm('Удалить пользователя?')) return;
-    const res = await fetch('/api/users/' + id, { method: 'DELETE' });
-    if (res.ok) {
-        document.getElementById('user-card-' + id)?.remove();
-        notify('Пользователь удалён');
-    } else {
-        notify('Ошибка', true);
-    }
-}
+function createSocial() {
+    var platform = document.getElementById('social-platform').value;
+    var profileUrl = document.getElementById('social-url').value.trim();
+    var userId = parseInt(document.getElementById('social-userId').value);
 
-async function createUser() {
-    const username = document.getElementById('user-username').value.trim();
-    const email    = document.getElementById('user-email').value.trim();
-    const bio      = document.getElementById('user-bio').value.trim();
-    if (!username || !email) { notify('Заполните имя и email', true); return; }
-    const res = await fetch('/api/users', {
+    if (!profileUrl) {
+        showToast('Введите ссылку на профиль', 'error');
+        return;
+    }
+
+    fetch('/api/social-media', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, bio })
-    });
-    if (res.ok) { notify('Пользователь создан!'); location.reload(); }
-    else {
-        const e = await res.json();
-        notify((e.messages ? e.messages[0] : e.error) || 'Ошибка', true);
-    }
+        body: JSON.stringify({ platform: platform, profileUrl: profileUrl, userId: userId })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(sm) {
+        closeModal('modal-social');
+        document.getElementById('social-url').value = '';
+        document.getElementById('social-userId').value = '1';
+        var grid = document.getElementById('social-grid');
+        var card = document.createElement('div');
+        card.className = 'social-card';
+        card.innerHTML =
+            '<div class="social-platform">' + escHtml(sm.platform) + '</div>' +
+            '<div class="social-info">' +
+                '<div class="social-user">Пользователь #' + sm.userId + '</div>' +
+                '<a class="social-url" href="' + escHtml(sm.profileUrl) + '" target="_blank">' + escHtml(sm.profileUrl) + '</a>' +
+            '</div>';
+        grid.appendChild(card);
+        showToast('Соцсеть добавлена!', 'success');
+    })
+    .catch(function() { showToast('Ошибка при добавлении', 'error'); });
 }
 
-async function deleteSocial(id) {
-    if (!confirm('Удалить соцсеть?')) return;
-    const res = await fetch('/api/social-media/' + id, { method: 'DELETE' });
-    if (res.ok) {
-        document.getElementById('social-card-' + id)?.remove();
-        notify('Соцсеть удалена');
-    } else {
-        notify('Ошибка', true);
-    }
+function escHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
 
-async function createSocial() {
-    const userId     = document.getElementById('social-userId').value;
-    const platform   = document.getElementById('social-platform').value;
-    const profileUrl = document.getElementById('social-profileUrl').value.trim();
-    const followers  = document.getElementById('social-followers').value;
-    if (!userId || !platform || !profileUrl) { notify('Заполните все обязательные поля', true); return; }
-    const res = await fetch('/api/social-media', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: Number(userId), platform, profileUrl, followers: Number(followers) || 0 })
-    });
-    if (res.ok) { notify('Соцсеть привязана!'); location.reload(); }
-    else {
-        const e = await res.json();
-        notify((e.messages ? e.messages[0] : e.error) || 'Ошибка', true);
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        ['modal-post', 'modal-user', 'modal-social'].forEach(function(id) {
+            closeModal(id);
+        });
     }
-}
+});
 

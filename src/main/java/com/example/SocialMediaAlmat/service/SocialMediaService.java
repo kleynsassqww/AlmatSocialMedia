@@ -12,43 +12,40 @@ import java.util.stream.Collectors;
 @Service
 public class SocialMediaService {
 
-    private final List<SocialMedia> list    = new ArrayList<>();
-    private final AtomicLong        counter = new AtomicLong(1);
+    private final List<SocialMedia> accounts = new ArrayList<>();
+    private final AtomicLong counter = new AtomicLong(1);
 
     public SocialMediaService() {
-        list.add(new SocialMedia(counter.getAndIncrement(), "Instagram", "https://instagram.com/almat_dev", 1L, 1500));
-        list.add(new SocialMedia(counter.getAndIncrement(), "Twitter",   "https://twitter.com/almat_dev",   1L,  800));
-        list.add(new SocialMedia(counter.getAndIncrement(), "TikTok",    "https://tiktok.com/@almat_dev",   1L, 5200));
-        list.add(new SocialMedia(counter.getAndIncrement(), "Instagram", "https://instagram.com/aizat_kz",  2L, 3200));
+        accounts.add(new SocialMedia(counter.getAndIncrement(), "Instagram", "https://instagram.com/almat", 1L));
+        accounts.add(new SocialMedia(counter.getAndIncrement(), "GitHub", "https://github.com/almat", 1L));
+        accounts.add(new SocialMedia(counter.getAndIncrement(), "TikTok", "https://tiktok.com/@aigrim", 2L));
+        accounts.add(new SocialMedia(counter.getAndIncrement(), "LinkedIn", "https://linkedin.com/in/daniyal", 3L));
     }
 
-    public List<SocialMedia> getAll() { return list; }
+    public List<SocialMedia> getAll() {
+        return accounts;
+    }
 
     public Optional<SocialMedia> getById(Long id) {
-        return list.stream().filter(s -> s.getId().equals(id)).findFirst();
+        return accounts.stream().filter(a -> a.getId().equals(id)).findFirst();
     }
 
     public List<SocialMedia> getByUserId(Long userId) {
-        return list.stream().filter(s -> s.getUserId().equals(userId)).collect(Collectors.toList());
+        return accounts.stream().filter(a -> a.getUserId().equals(userId)).collect(Collectors.toList());
     }
 
     public SocialMedia create(SocialMedia sm) {
         sm.setId(counter.getAndIncrement());
-        list.add(sm);
+        accounts.add(sm);
         return sm;
     }
 
-    public Optional<SocialMedia> update(Long id, SocialMedia updated) {
-        return getById(id).map(s -> {
-            s.setPlatform(updated.getPlatform());
-            s.setProfileUrl(updated.getProfileUrl());
-            s.setFollowers(updated.getFollowers());
-            return s;
-        });
+    public boolean delete(Long id) {
+        return accounts.removeIf(a -> a.getId().equals(id));
     }
 
-    public boolean delete(Long id) {
-        return list.removeIf(s -> s.getId().equals(id));
+    public int count() {
+        return accounts.size();
     }
 }
 

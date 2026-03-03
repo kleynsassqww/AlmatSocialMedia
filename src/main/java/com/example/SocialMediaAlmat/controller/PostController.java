@@ -12,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts")
-@CrossOrigin(origins = "*")
 public class PostController {
 
     private final PostService postService;
@@ -22,56 +21,48 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Post>> getAll() {
+    public ResponseEntity<List<Post>> getAllPosts() {
         return ResponseEntity.ok(postService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
+    public ResponseEntity<Post> getPostById(@PathVariable Long id) {
         return postService.getById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Пост id=" + id + " не найден")));
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Post>> getByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<Post>> getPostsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(postService.getByUserId(userId));
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Post post) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.create(post));
+    public ResponseEntity<Post> createPost(@Valid @RequestBody Post post) {
+        Post created = postService.create(post);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody Post post) {
+    public ResponseEntity<Post> updatePost(@PathVariable Long id, @Valid @RequestBody Post post) {
         return postService.update(id, post)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Пост id=" + id + " не найден")));
-    }
-
-    @PostMapping("/{id}/like")
-    public ResponseEntity<?> like(@PathVariable Long id) {
-        return postService.like(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Пост id=" + id + " не найден")));
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deletePost(@PathVariable Long id) {
         if (postService.delete(id)) {
-            return ResponseEntity.ok(Map.of("message", "Пост id=" + id + " удалён"));
+            return ResponseEntity.ok(Map.of("message", "Пост удалён"));
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", "Пост id=" + id + " не найден"));
+        return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/count")
-    public ResponseEntity<Map<String, Integer>> count() {
-        return ResponseEntity.ok(Map.of("total", postService.getAll().size()));
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Post> likePost(@PathVariable Long id) {
+        return postService.like(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
 
