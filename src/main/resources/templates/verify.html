@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Подтверждение Email</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Подтверждение Email</h2>
+        <div th:if="${error != null}" class="alert error" th:text="${error}"></div>
+        <p>Мы отправили код подтверждения на <b><span th:text="${email}"></span></b></p>
+        <p>(Проверьте консоль сервера, если база имитирует отправку)</p>
+        <form th:action="@{/verify}" method="post">
+            <input type="hidden" name="email" th:value="${email}" />
+            <div class="form-group">
+                <label>Код из письма</label>
+                <input type="text" name="code" required />
+            </div>
+            <button type="submit" class="btn-primary w-100">Подтвердить</button>
+        </form>
+        <p style="margin-top: 15px;"><a th:href="@{/login}">Войти</a></p>
+    </div>
+</div>
+</body>
+</html>

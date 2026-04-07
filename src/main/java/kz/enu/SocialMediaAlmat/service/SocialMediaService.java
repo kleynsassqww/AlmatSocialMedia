@@ -1,51 +1,62 @@
 package kz.enu.SocialMediaAlmat.service;
 
 import kz.enu.SocialMediaAlmat.model.SocialMedia;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Service
-public class SocialMediaService {
+public class    SocialMediaService {
 
-    private final List<SocialMedia> accounts = new ArrayList<>();
-    private final AtomicLong counter = new AtomicLong(1);
+    private final JdbcTemplate jdbc;
 
-    public SocialMediaService() {
-        accounts.add(new SocialMedia(counter.getAndIncrement(), "Instagram", "https://instagram.com/almat", 1L));
-        accounts.add(new SocialMedia(counter.getAndIncrement(), "GitHub", "https://github.com/almat", 1L));
-        accounts.add(new SocialMedia(counter.getAndIncrement(), "TikTok", "https://tiktok.com/@aigrim", 2L));
-        accounts.add(new SocialMedia(counter.getAndIncrement(), "LinkedIn", "https://linkedin.com/in/daniyal", 3L));
+    public SocialMediaService(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
     }
 
+    private final RowMapper<SocialMedia> rowMapper = new RowMapper<>() {
+        @Override
+        public SocialMedia mapRow(ResultSet rs, int rowNum) throws SQLException {
+            SocialMedia s = new SocialMedia();
+            s.setId(rs.getLong("id"));
+            s.setPlatform(rs.getString("platform"));
+            s.setProfileUrl(rs.getString("profile_url"));
+            s.setUserId(rs.getLong("user_id"));
+            return s;
+        }
+    };
+
     public List<SocialMedia> getAll() {
-        return accounts;
+        return jdbc.query("SELECT * FROM social_media ORDER BY id", rowMapper);
     }
 
     public Optional<SocialMedia> getById(Long id) {
-        return accounts.stream().filter(a -> a.getId().equals(id)).findFirst();
+        List<SocialMedia> list = jdbc.query("SELECT * FROM social_media WHERE id = ?", rowMapper, id);
+        return list.stream().findFirst();
     }
 
     public List<SocialMedia> getByUserId(Long userId) {
-        return accounts.stream().filter(a -> a.getUserId().equals(userId)).collect(Collectors.toList());
+        return jdbc.query("SELECT * FROM social_media WHERE user_id = ?", rowMapper, userId);
     }
 
     public SocialMedia create(SocialMedia sm) {
-        sm.setId(counter.getAndIncrement());
-        accounts.add(sm);
+        jdbc.update("INSERT INTO social_media (platform, profile_url, user_id) VALUES (?, ?, ?)", sm.getPlatform(), sm.getProfileUrl(), sm.getUserId());
+        Long id = jdbc.queryForObject("SELECT last_insert_rowid()", Long.class);
+        sm.setId(id);
         return sm;
     }
 
     public boolean delete(Long id) {
-        return accounts.removeIf(a -> a.getId().equals(id));
+        return jdbc.update("DELETE FROM social_media WHERE id = ?", id) > 0;
     }
 
     public int count() {
-        return accounts.size();
+        Integer c = jdbc.queryForObject("SELECT COUNT(*) FROM social_media", Integer.class);
+        return c == null ? 0 : c;
     }
 }
-

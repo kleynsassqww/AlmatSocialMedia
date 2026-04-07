@@ -11,260 +11,122 @@
 
 <nav class="navbar">
     <div class="navbar-inner">
-        <a class="navbar-brand" href="/">Almat<span>Social</span></a>
-        <div class="nav-links">
-            <a href="#hero">Главная</a>
-            <a href="#posts">Посты</a>
-            <a href="#users">Пользователи</a>
-            <a href="#socials">Соцсети</a>
+        <div class="nav-left">
+            <a class="navbar-brand" href="/"><div class="logo-f">A</div></a>
+            <div class="search-box">
+                <span class="icon">🔍</span>
+                <input type="text" placeholder="Поиск в AlmatSocial"/>
+            </div>
         </div>
-        <button class="nav-btn" onclick="openModal('modal-user')">+ Регистрация</button>
+
+        <div class="nav-center">
+            <a href="#posts" class="icon-btn active">🏠</a>
+            <a href="#users" class="icon-btn">👥</a>
+            <a href="#socials" class="icon-btn">🔗</a>
+        </div>
+
+        <div class="nav-right">
+            <div th:if="${session == null or session.user == null}" style="display:flex; gap:8px;">
+                <a class="btn-sm btn-login" href="/login">Войти</a>
+                <a class="btn-sm btn-login" href="/register">Регистрация</a>
+            </div>
+            <div th:if="${session != null and session.user != null}" class="user-profile-btn">
+                <div class="user-avatar-sm" th:text="${#strings.substring(session.user.name,0,1)}">П</div>
+                <span th:text="${session.user.name}" style="font-weight:600; margin-right:12px;">User</span>
+                <a href="/logout" class="btn-sm logout-btn">🚪</a>
+            </div>
+        </div>
     </div>
 </nav>
 
-<section class="hero" id="hero">
-    <div class="hero-text">
-        <div class="badge">Казахстан</div>
-        <h1>Привет, я <span class="accent">Алмат</span></h1>
-        <p>Добро пожаловать в мою социальную платформу. Публикуй посты, знакомься с людьми и связывай свои аккаунты из других соцсетей.</p>
-        <div class="hero-btns">
-            <a href="#posts" class="btn-primary">Смотреть посты</a>
-        </div>
-    </div>
-    <div class="hero-card">
-        <div class="profile-avatar">
-            <img th:src="@{/images/ava.jpg}" alt="Алмат"/>
-        </div>
-        <div class="profile-name">Алмат</div>
-        <div class="profile-bio">Создатель AlmatSocial</div>
-        <div class="profile-stats">
-            <div class="pstat">
-                <span th:text="${postCount}">0</span>
-                <small>Постов</small>
-            </div>
-            <div class="pstat">
-                <span th:text="${userCount}">0</span>
-                <small>Юзеров</small>
-            </div>
-            <div class="pstat">
-                <span th:text="${socialCount}">0</span>
-                <small>Соцсетей</small>
-            </div>
-        </div>
-    </div>
-</section>
+<div class="fb-layout">
+    <!-- Left Sidebar -->
+    <div class="sidebar left-sidebar">
+        <a href="#" class="sidebar-item active">
+            <div class="user-avatar-sm" th:if="${session != null and session.user != null}" th:text="${#strings.substring(session.user.name,0,1)}">П</div>
+            <div class="user-avatar-sm" th:if="${session == null or session.user == null}">Г</div>
+            <span th:text="${session != null and session.user != null ? session.user.name : 'Гость'}">Пользователь</span>
+        </a>
+        <a href="#" class="sidebar-item"><span class="icon">📘</span> Новости</a>
+        <a href="#users" class="sidebar-item"><span class="icon">👥</span> Пользователи (<span th:text="${userCount}">0</span>)</a>
+        <a href="#socials" class="sidebar-item"><span class="icon">🔗</span> Соцсети (<span th:text="${socialCount}">0</span>)</a>
 
-<div class="stats-row">
-    <div class="stats-row-inner">
-        <div class="stat-item">
-            <div class="stat-num" th:text="${userCount}">0</div>
-            <div class="stat-lbl">Пользователей</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num" th:text="${postCount}">0</div>
-            <div class="stat-lbl">Постов</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num" th:text="${socialCount}">0</div>
-            <div class="stat-lbl">Соцсетей</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">17</div>
-            <div class="stat-lbl">API эндпоинтов</div>
-        </div>
+        <hr class="divider"/>
+        <h4 class="sidebar-title">Ваши ярлыки</h4>
+        <a class="sidebar-item"><span class="icon">🚀</span> Spring Boot Community</a>
+        <a class="sidebar-item"><span class="icon">☕</span> Java Developers</a>
     </div>
-</div>
 
-<section class="section" id="posts">
-    <div class="container">
-        <div class="section-head">
-            <div>
-                <h2 class="section-title">Последние посты</h2>
-                <p class="section-subtitle">Самые свежие публикации платформы</p>
+    <!-- Center Feed -->
+    <div class="feed center-feed">
+        <!-- Create Post -->
+        <div class="fb-card create-post-card" th:if="${session != null and session.user != null}">
+            <div class="create-post-top">
+                <div class="user-avatar" th:text="${#strings.substring(session.user.name,0,1)}">П</div>
+                <input type="text" placeholder="Что у вас нового?"/>
             </div>
-            <button class="btn-primary" onclick="openModal('modal-post')">+ Новый пост</button>
+            <hr class="divider"/>
+            <div class="create-post-bottom">
+                <div class="action-btn"><span style="color:#f3425f;">📷</span> Фото/видео</div>
+                <div class="action-btn"><span style="color:#45bd62;">😊</span> Развлечения</div>
+            </div>
         </div>
-        <div class="posts-grid" id="posts-grid">
-            <div class="post-card" th:each="post : ${latestPosts}">
+
+        <div class="fb-card" th:if="${session == null or session.user == null}" style="text-align:center; padding:24px;">
+            <h2>Добро пожаловать!</h2>
+            <p style="color:var(--muted); margin-top:8px;">Авторизуйтесь, чтобы полноценно пользоваться платформой.</p>
+        </div>
+
+        <div class="posts-grid" id="posts">
+            <div class="fb-card post-card" th:each="post : ${latestPosts}">
                 <div class="post-header">
-                    <div class="post-avatar" th:text="${#strings.substring(post.title,0,1)}">П</div>
+                    <div class="post-avatar" th:text="${post.title != null and !#strings.isEmpty(post.title) ? #strings.substring(post.title,0,1) : 'P'}">P</div>
                     <div>
                         <div class="post-author">Пользователь #<span th:text="${post.userId}">1</span></div>
-                        <div class="post-date" th:text="${#temporals.format(post.createdAt,'dd.MM.yyyy')}">01.01.2024</div>
+                        <div class="post-date">
+                            <span th:text="${#temporals.format(post.createdAt,'dd.MM.yyyy HH:mm')}"></span> · 🌎
+                        </div>
                     </div>
+                    <div style="margin-left:auto; color:var(--muted); cursor:pointer;">•••</div>
                 </div>
-                <h3 class="post-title" th:text="${post.title}">Заголовок</h3>
-                <p class="post-content" th:text="${#strings.abbreviate(post.content, 130)}">Текст...</p>
-                <div class="post-footer">
-                    <button class="post-likes" th:attr="onclick='likePost(' + ${post.id} + ', this)'">
-                        Лайков: <b th:text="${post.likes}">0</b>
-                    </button>
-                    <button class="btn-sm" th:attr="onclick='deletePost(' + ${post.id} + ')'">Удалить</button>
+
+                <div class="post-body">
+                    <h4 th:if="${post.title != null}" th:text="${post.title}">Заголовок</h4>
+                    <p th:text="${post.content}">Текст...</p>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<hr class="section-divider"/>
-
-<section class="section" id="users">
-    <div class="container">
-        <div class="section-head">
-            <div>
-                <h2 class="section-title">Пользователи</h2>
-                <p class="section-subtitle">Все зарегистрированные участники</p>
-            </div>
-            <button class="btn-primary" onclick="openModal('modal-user')">+ Добавить</button>
-        </div>
-        <div class="users-grid" id="users-grid">
-            <div class="user-card" th:each="user : ${users}">
-                <div class="user-avatar" th:text="${#strings.substring(user.name,0,1)}">А</div>
-                <div class="user-info">
-                    <div class="user-name" th:text="${user.name}">Имя</div>
-                    <div class="user-email" th:text="${user.email}">email</div>
-                    <div class="user-bio" th:text="${user.bio}">Биография</div>
+                <div class="post-stats">
+                    <span>👍 <span th:text="${post.likes}">0</span></span>
+                    <span>1 Комментарий</span>
+                </div>
+                <hr class="divider"/>
+                <div class="post-actions">
+                    <div class="action-btn">👍 Нравится</div>
+                    <div class="action-btn">💬 Комментаровать</div>
+                    <div class="action-btn">↪️ Поделиться</div>
                 </div>
             </div>
         </div>
     </div>
-</section>
 
-<hr class="section-divider"/>
+    <!-- Right Sidebar -->
+    <div class="sidebar right-sidebar">
+        <h4 class="sidebar-title">Реклама</h4>
+        <div class="sponsor-card">
+            <img th:src="@{/images/ava.jpg}" style="width:100%; border-radius:8px; margin-bottom:8px; object-fit: cover; max-height: 150px;"/>
+            <strong style="display:block">Almat Platform</strong>
+            <span style="color:var(--muted); font-size:13px;">almat.example.com</span>
+        </div>
 
-<section class="section" id="socials">
-    <div class="container">
-        <div class="section-head">
-            <div>
-                <h2 class="section-title">Соцсети</h2>
-                <p class="section-subtitle">Привязанные аккаунты пользователей</p>
-            </div>
-            <button class="btn-primary" onclick="openModal('modal-social')">+ Добавить</button>
-        </div>
-        <div class="social-grid" id="social-grid">
-            <div class="social-card" th:each="sm : ${socials}">
-                <div class="social-platform" th:text="${sm.platform}">Instagram</div>
-                <div class="social-info">
-                    <div class="social-user">Пользователь #<span th:text="${sm.userId}">1</span></div>
-                    <a class="social-url" th:href="${sm.profileUrl}" th:text="${sm.profileUrl}" target="_blank">url</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<section class="section" id="about">
-    <div class="container">
-        <h2 class="section-title">О платформе</h2>
-        <div class="features-grid">
-            <div class="feature">
-                <div class="feature-icon">POST</div>
-                <h3>Публикации</h3>
-                <p>Создавай посты, редактируй их и собирай лайки от других пользователей</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">USER</div>
-                <h3>Пользователи</h3>
-                <p>Полноценное управление профилями с валидацией данных</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">LINK</div>
-                <h3>Соцсети</h3>
-                <p>Привязывай аккаунты из Instagram, TikTok, GitHub и других платформ</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">API</div>
-                <h3>REST API</h3>
-                <p>17 эндпоинтов с аннотациями, валидацией и обработкой ошибок</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<footer class="footer">
-    <div class="footer-inner">
-        <div class="footer-brand">Almat<span>Social</span></div>
-        <p>Социальная платформа от Алмата. 2026.</p>
-    </div>
-</footer>
-
-<div class="modal-overlay" id="modal-post" onclick="closeModalOutside(event, 'modal-post')">
-    <div class="modal">
-        <h3 class="modal-title">Новый пост</h3>
-        <div class="form-group">
-            <label>Заголовок</label>
-            <input type="text" id="post-title" placeholder="Заголовок поста"/>
-        </div>
-        <div class="form-group">
-            <label>Содержание</label>
-            <textarea id="post-content" placeholder="Напишите что-нибудь..."></textarea>
-        </div>
-        <div class="form-group">
-            <label>ID пользователя</label>
-            <input type="number" id="post-userId" value="1" min="1"/>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" onclick="closeModal('modal-post')">Отмена</button>
-            <button class="btn-primary" onclick="createPost()">Опубликовать</button>
+        <hr class="divider"/>
+        <h4 class="sidebar-title">Контакты</h4>
+        <div th:each="user, userStat : ${users}" th:if="${userStat.index < 8}" class="contact-item">
+            <div class="user-avatar-sm" th:text="${!#strings.isEmpty(user.name) ? #strings.substring(user.name,0,1) : 'U'}">👤</div>
+            <span th:text="${user.name}">Имя</span>
         </div>
     </div>
 </div>
-
-<div class="modal-overlay" id="modal-user" onclick="closeModalOutside(event, 'modal-user')">
-    <div class="modal">
-        <h3 class="modal-title">Новый пользователь</h3>
-        <div class="form-group">
-            <label>Имя</label>
-            <input type="text" id="user-name" placeholder="Ваше имя"/>
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="user-email" placeholder="email@example.com"/>
-        </div>
-        <div class="form-group">
-            <label>Биография</label>
-            <input type="text" id="user-bio" placeholder="Расскажите о себе"/>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" onclick="closeModal('modal-user')">Отмена</button>
-            <button class="btn-primary" onclick="createUser()">Зарегистрироваться</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="modal-social" onclick="closeModalOutside(event, 'modal-social')">
-    <div class="modal">
-        <h3 class="modal-title">Добавить соцсеть</h3>
-        <div class="form-group">
-            <label>Платформа</label>
-            <select id="social-platform">
-                <option>Instagram</option>
-                <option>TikTok</option>
-                <option>GitHub</option>
-                <option>LinkedIn</option>
-                <option>Twitter</option>
-                <option>YouTube</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Ссылка на профиль</label>
-            <input type="url" id="social-url" placeholder="https://instagram.com/username"/>
-        </div>
-        <div class="form-group">
-            <label>ID пользователя</label>
-            <input type="number" id="social-userId" value="1" min="1"/>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" onclick="closeModal('modal-social')">Отмена</button>
-            <button class="btn-primary" onclick="createSocial()">Добавить</button>
-        </div>
-    </div>
-</div>
-
-<div class="toast-container" id="toast-container"></div>
 
 <script th:src="@{/js/app.js}"></script>
 </body>
 </html>
-

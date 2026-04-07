@@ -1,71 +1,92 @@
 package kz.enu.SocialMediaAlmat.service;
 
 import kz.enu.SocialMediaAlmat.model.Post;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Service
 public class PostService {
 
-    private final List<Post> posts = new ArrayList<>();
-    private final AtomicLong counter = new AtomicLong(1);
+    private final JdbcTemplate jdbc;
 
-    public PostService() {
-        posts.add(new Post(counter.getAndIncrement(), "Добро пожаловать в AlmatSocial!", "Это первый пост на нашей платформе. Рад всех приветствовать!", 1L));
-        posts.add(new Post(counter.getAndIncrement(), "Весна в Алматы", "Алматы весной — это что-то особенное. Цветут яблони, горы покрыты снегом...", 2L));
-        posts.add(new Post(counter.getAndIncrement(), "Советы по программированию", "Spring Boot — отличный фреймворк для создания REST API. Начните с малого и двигайтесь вперёд!", 1L));
+    public PostService(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
     }
 
+    private final RowMapper<Post> postRowMapper = new RowMapper<>() {
+        @Override
+        public Post mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Post p = new Post();
+            p.setId(rs.getLong("id"));
+            p.setTitle(rs.getString("title"));
+            p.setContent(rs.getString("content"));
+            p.setUserId(rs.getLong("user_id"));
+            p.setLikes(rs.getInt("likes"));
+            String dateStr = rs.getString("created_at");
+            if (dateStr != null) {
+                try {
+                    p.setCreatedAt(LocalDateTime.parse(dateStr.replace(" ", "T")));
+                } catch (Exception e) {
+                    p.setCreatedAt(LocalDateTime.now());
+                }
+            }
+            return p;
+        }
+    };
+
     public List<Post> getAll() {
-        return posts;
+        return jdbc.query("SELECT * FROM posts ORDER BY id", postRowMapper);
     }
 
     public Optional<Post> getById(Long id) {
-        return posts.stream().filter(p -> p.getId().equals(id)).findFirst();
+        List<Post> list = jdbc.query("SELECT * FROM posts WHERE id = ?", postRowMapper, id);
+        return list.stream().findFirst();
     }
 
     public List<Post> getByUserId(Long userId) {
-        return posts.stream().filter(p -> p.getUserId().equals(userId)).collect(Collectors.toList());
+        return jdbc.query("SELECT * FROM posts WHERE user_id = ?", postRowMapper, userId);
     }
 
     public Post create(Post post) {
-        post.setId(counter.getAndIncrement());
+        jdbc.update("INSERT INTO posts (title, content, user_id, likes, created_at) VALUES (?, ?, ?, ?, datetime('now'))",
+                post.getTitle(), post.getContent(), post.getUserId(), 0);
+        Long id = jdbc.queryForObject("SELECT last_insert_rowid()", Long.class);
+        post.setId(id);
         post.setLikes(0);
-        posts.add(post);
         return post;
     }
 
     public Optional<Post> update(Long id, Post updated) {
-        return getById(id).map(post -> {
-            post.setTitle(updated.getTitle());
-            post.setContent(updated.getContent());
-            return post;
+        getById(id).ifPresent(p -> {
+            jdbc.update("UPDATE posts SET title = ?, content = ? WHERE id = ?", updated.getTitle(), updated.getContent(), id);
         });
+        return getById(id);
     }
 
     public boolean delete(Long id) {
-        return posts.removeIf(p -> p.getId().equals(id));
+        return jdbc.update("DELETE FROM posts WHERE id = ?", id) > 0;
     }
 
     public Optional<Post> like(Long id) {
-        return getById(id).map(post -> {
-            post.setLikes(post.getLikes() + 1);
-            return post;
+        return getById(id).map(p -> {
+            jdbc.update("UPDATE posts SET likes = likes + 1 WHERE id = ?", id);
+            return getById(id).orElse(p);
         });
     }
 
     public List<Post> getLatest(int n) {
-        int size = posts.size();
-        return posts.subList(Math.max(0, size - n), size);
+        return jdbc.query("SELECT * FROM posts ORDER BY created_at DESC LIMIT ?", postRowMapper, n);
     }
 
     public int count() {
-        return posts.size();
+        Integer c = jdbc.queryForObject("SELECT COUNT(*) FROM posts", Integer.class);
+        return c == null ? 0 : c;
     }
 }
-

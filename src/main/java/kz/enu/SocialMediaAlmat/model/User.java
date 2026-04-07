@@ -1,5 +1,6 @@
 package kz.enu.SocialMediaAlmat.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -21,7 +22,15 @@ public class User {
     @Size(max = 200, message = "Биография не более 200 символов")
     private String bio;
 
+    @NotBlank(message = "Пароль не может быть пустым")
+    @Size(min = 6, max = 100, message = "Пароль должен быть не менее 6 символов")
+    private String password;
+
     private LocalDateTime createdAt;
+
+    private boolean isVerified;
+    private String confirmationCode;
+    private boolean isAdmin;
 
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -32,6 +41,15 @@ public class User {
         this.name = name;
         this.email = email;
         this.bio = bio;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public User(Long id, String name, String email, String bio, String password) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.bio = bio;
+        this.password = password;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -47,7 +65,19 @@ public class User {
     public String getBio() { return bio; }
     public void setBio(String bio) { this.bio = bio; }
 
+    @JsonIgnore
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-}
 
+    public boolean isVerified() { return isVerified; }
+    public void setVerified(boolean verified) { this.isVerified = verified; }
+
+    public String getConfirmationCode() { return confirmationCode; }
+    public void setConfirmationCode(String confirmationCode) { this.confirmationCode = confirmationCode; }
+
+    public boolean isAdmin() { return isAdmin; }
+    public void setAdmin(boolean admin) { this.isAdmin = admin; }
+}

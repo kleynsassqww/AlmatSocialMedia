@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "AlmatSocial API",
+    "_postman_id": "almat-social-collection",
+    "description": "Коллекция для проверки основных сценариев: регистрация, вход, получение пользователей",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register (form)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "name", "value": "Test User" },
+            { "key": "email", "value": "testuser@example.com" },
+            { "key": "password", "value": "password123" },
+            { "key": "bio", "value": "Я тестовый пользователь" }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/register",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "register" ]
+        }
+      }
+    },
+    {
+      "name": "Login (form)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "email", "value": "almat@example.com" },
+            { "key": "password", "value": "password" }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/login", "host": [ "{{baseUrl}}" ], "path": [ "login" ] }
+      }
+    },
+    {
+      "name": "API Login (JSON)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"almat@example.com\",\n  \"password\": \"password\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/login", "host": [ "{{baseUrl}}" ], "path": [ "api", "login" ] }
+      }
+    },
+    {
+      "name": "Get users (API)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/users", "host": [ "{{baseUrl}}" ], "path": [ "api", "users" ] }
+      }
+    },
+    {
+      "name": "Create user (API)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"API User\",\n  \"email\": \"apiuser@example.com\",\n  \"bio\": \"Created via API\",\n  \"password\": \"apipass123\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/users", "host": [ "{{baseUrl}}" ], "path": [ "api", "users" ] }
+      }
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/logout", "host": [ "{{baseUrl}}" ], "path": [ "logout" ] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ]
+}
+
